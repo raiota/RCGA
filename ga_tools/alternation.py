@@ -3,10 +3,32 @@
 Module for new generation alternation model.
 """
 
+from enum import Enum
+
 import numpy
 
 from .individual import *
 from .crossover import *
+
+######################
+# Evaluation Problem #
+######################
+
+class evalType(Enum):
+    MINIMIZE = 0
+    MAXIMIZE = 1
+
+
+def evaltool(evaltype):
+
+    if evaltype == evalType.MINIMIZE:
+        return False
+    
+    elif evaltype == evalType.MAXIMIZE:
+        return True
+    
+    else:
+        raise ValueError("Argument `evaltype` is invalid.")
 
 
 #####################
@@ -23,6 +45,9 @@ class JGG(object):
         Dimension of optimization, which indicates the length of chromosome.
     evaluation_func : function
         Function for optimizing
+    evaluation_type : enum
+        Type of evaluation, like "minimize problem", or "maximize problem".
+        For more details see above.
     gene_min : numpy.ndarray
         List of minimum value of chromosome.
     gene_max : numpy.ndarray
@@ -44,7 +69,7 @@ class JGG(object):
     """
 
     def __init__(self, dim,
-                 evaluation_func,
+                 evaluation_func, evaluation_type
                  gene_min, gene_max,
                  crossover_type,
                  random_type,
@@ -60,6 +85,7 @@ class JGG(object):
 
         # function for evaluation
         self._eval = evaluation_func
+        self.evaltype = evaluation_type
 
         # function for crossover
         self.cross = cross(crossover_type=crossover_type,
@@ -71,11 +97,62 @@ class JGG(object):
         self.child_num = child_num
     
 
-    %staticmethod
     def init_population(self):
+
         self.population = Population(self.pop_size, self.gene_min, self.gene_max, self.dim)
+        self.population.gen = 1
+
         return self.population
     
-    %staticmethod
-    def eval(self, *args, **kwargs):
+
+    def eval(self, population=None, *args, **kwargs):
+
+        if population is not None:
+            fitnesses = list(map(self._eval(*args, **kwargs), population))
+        else:
+            fitnesses = list(map(self._eval(*args, **kwargs), self.population))
         
+        for ind, fit in zip(population, fitnesses):
+            ind.fitness = fit
+        
+        return population
+    
+
+    def __extract_parents(self):
+
+        parent_group, self.population = extract(self.population, self.parent_num)
+        return parent_group, self.population
+        
+
+    def __crossover(self, parent_group):
+
+        children = []
+
+        for _ in range(self.child_num):
+            random.shuffle(parent_group)
+            a_child = self.cross(*tuple([parent_group[i] for i in range(self.cross.crossover_num)]))
+            children.append(a_child)
+        
+        return children
+    
+
+    def __select(self, children):
+
+        children.sort(key=lambda ind: ind.fitness, reverse=evaltool(self.evaltype))
+        next_children = children[0:self.parent_num]
+
+        return next_children
+
+
+    def generation_step(self):
+
+        parent_group, _ = self.__extract_parents()
+        children = self.__crossover()
+        next_children = self.__select(children)
+
+        next_children = self.eval(population=next_children):
+
+        self.population += next_children
+        self.population.gen += 1
+
+        return self.population

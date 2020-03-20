@@ -27,7 +27,7 @@ def cross(crossover_type, *args, **kwargs):
         return REX(*args, **kwargs)
     
     elif crossover_type == crossover_type.GENERAL_REX:
-        return rex(*args, **kwargs)
+        return REX(*args, **kwargs)
     
     else:
         raise ValueError("Argument `crossover_type` is invalid.")
