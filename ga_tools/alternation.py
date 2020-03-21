@@ -69,12 +69,11 @@ class JGG(object):
     """
 
     def __init__(self, dim,
-                 evaluation_func, evaluation_type
+                 evaluation_func, evaluation_type,
                  gene_min, gene_max,
                  crossover_type,
                  random_type,
                  pop_size, parent_num, child_num,
-                 chrom_size,
                  k=None, seed=None):
 
         numpy.random.seed(seed=seed)
@@ -100,7 +99,7 @@ class JGG(object):
     def init_population(self):
 
         self.population = Population(self.pop_size, self.gene_min, self.gene_max, self.dim)
-        self.population.gen = 1
+        # self.population.gen = 1
 
         return self.population
     
@@ -108,13 +107,14 @@ class JGG(object):
     def eval(self, population=None, *args, **kwargs):
 
         if population is not None:
-            fitnesses = list(map(self._eval(*args, **kwargs), population))
+            fitnesses = [self._eval(ind, *args, **kwargs) for ind in population]
+            for ind, fit in zip(population, fitnesses):
+                ind.fitness = fit
         else:
-            fitnesses = list(map(self._eval(*args, **kwargs), self.population))
-        
-        for ind, fit in zip(population, fitnesses):
-            ind.fitness = fit
-        
+            fitnesses = [self._eval(ind, *args, **kwargs) for ind in self.population]
+            for ind, fit in zip(self.population, fitnesses):
+                ind.fitness = fit
+  
         return population
     
 
@@ -147,12 +147,12 @@ class JGG(object):
     def generation_step(self):
 
         parent_group, _ = self.__extract_parents()
-        children = self.__crossover()
-        next_children = self.__select(children)
+        children_group = [Individual(ind) for ind in self.__crossover(parent_group)]
 
-        next_children = self.eval(population=next_children):
+        evaluated_children = self.eval(population=children_group)
+        next_children = self.__select(evaluated_children)
 
         self.population += next_children
-        self.population.gen += 1
+        # self.population.gen += 1
 
         return self.population

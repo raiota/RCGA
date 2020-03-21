@@ -42,8 +42,6 @@ def genemake(gene_min, gene_max, size=None):
 
 class Population(list):
 
-    gen = None
-
     def __new__(cls, pop_size, gene_min, gene_max, chromo_size):
         cls = [Individual(genemake(gene_min, gene_max, size=chromo_size)) for _ in range(pop_size)]
         return cls
