@@ -23,10 +23,10 @@ def evaltool(evaltype):
 
     if evaltype == evalType.MINIMIZE:
         return False
-    
+
     elif evaltype == evalType.MAXIMIZE:
         return True
-    
+
     else:
         raise ValueError("Argument `evaltype` is invalid.")
 
@@ -94,7 +94,7 @@ class JGG(object):
         self.pop_size = pop_size
         self.parent_num = parent_num
         self.child_num = child_num
-    
+
 
     def init_population(self):
 
@@ -114,9 +114,9 @@ class JGG(object):
             fitnesses = [self._eval(ind, *args, **kwargs) for ind in self.population]
             for ind, fit in zip(self.population, fitnesses):
                 ind.fitness = fit
-  
+
         return population
-    
+
 
     def __extract_parents(self):
 
@@ -132,9 +132,9 @@ class JGG(object):
             random.shuffle(parent_group)
             a_child = self.cross(*tuple([parent_group[i] for i in range(self.cross.crossover_num)]))
             children.append(a_child)
-        
+
         return children
-    
+
 
     def __select(self, children):
 
