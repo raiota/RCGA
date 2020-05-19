@@ -22,7 +22,7 @@ def genemake(gene_min, gene_max, size=None):
     gene_max : array-like
     size : int
         size of chromosome (the numbers of gene)
-     
+
     Returns
     ----------
     chromosome : array-like

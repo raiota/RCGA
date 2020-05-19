@@ -30,7 +30,7 @@ def cross(crossover_type, *args, **kwargs):
         return REX(crossover_type, *args, **kwargs)
     
     else:
-        raise ValueError("Argument `crossover_type` is invalid.")
+        raise ValueError(f"argument *crossover_type*={crossover_type} is invalid.")
 
 
 ########################

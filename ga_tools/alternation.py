@@ -28,7 +28,7 @@ def evaltool(evaltype):
         return True
 
     else:
-        raise ValueError("Argument `evaltype` is invalid.")
+        raise ValueError(f"argument *evaltype*={evaltype} is invalid.")
 
 
 #####################
@@ -64,7 +64,9 @@ class JGG(object):
         Number of parents which is extracted for crossover.
     child_num : int
         Number of children which is generated.
-    seed :
+    k : int, optional
+        Additional numbers of parents for crossover REX
+    seed : int, optional.
         the seed value of randomness.
     """
 
@@ -99,10 +101,9 @@ class JGG(object):
     def init_population(self):
 
         self.population = Population(self.pop_size, self.gene_min, self.gene_max, self.dim)
-        # self.population.gen = 1
 
         return self.population
-    
+
 
     def eval(self, population=None, *args, **kwargs):
 
@@ -153,6 +154,5 @@ class JGG(object):
         next_children = self.__select(evaluated_children)
 
         self.population += next_children
-        # self.population.gen += 1
 
         return self.population
